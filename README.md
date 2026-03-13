@@ -1,6 +1,11 @@
 # Agent Research
 
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: Proprietary](https://img.shields.io/badge/license-proprietary-red.svg)](LICENSE)
+
 A research project focused on AI agent development and experimentation.
+
+> 🤖 Build intelligent agents with modular architecture, tool integration, and autonomous task planning capabilities.
 
 ## Overview
 
@@ -37,6 +42,11 @@ AgentResearch/
 - **Memory Management**: Key-value memory storage for context persistence
 - **Extensible Architecture**: Easy to add new agents and tools
 
+## Requirements
+
+- Python 3.8 or higher
+- No external dependencies required (uses Python standard library only)
+
 ## Installation
 
 ```bash
@@ -48,6 +58,19 @@ cd AgentResearch
 
 # No external dependencies required for core functionality
 # The project uses only Python standard library
+```
+
+### Optional: Create a Virtual Environment
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On macOS/Linux:
+source venv/bin/activate
+# On Windows:
+venv\Scripts\activate
 ```
 
 ## Quick Start
@@ -113,11 +136,48 @@ python basic_usage.py
 ```
 
 This runs three demonstrations:
-1. Task planning with step decomposition
-2. Tool-using agent with multiple tools
-3. Agent memory storage and retrieval
+1. **Task Planning Agent** - Decomposes complex tasks into executable steps
+2. **Tool Using Agent** - Routes tasks to appropriate tools automatically
+3. **Agent Memory** - Demonstrates context persistence and retrieval
+
+### Expected Output
+
+```
+==================================================
+Example 1: Task Planning Agent
+==================================================
+Task: Build a web scraper for news articles
+Plan ID: <uuid>
+Steps:
+  1. analyze: Analyze task: Build a web scraper for news articles
+  2. execute: Execute planned actions
+  3. validate: Validate results
+```
+
+## Testing
+
+Run the examples to verify the installation:
+
+```bash
+cd examples
+python basic_usage.py
+```
+
+All examples should complete without errors.
 
 ## Development
+
+### Code Structure
+
+```
+src/
+├── agents/           # Agent implementations
+│   ├── __init__.py
+│   └── base_agent.py # BaseAgent, TaskPlanningAgent, ToolUsingAgent
+└── tools/            # Tool integrations
+    ├── __init__.py
+    └── base_tool.py  # BaseTool, WebSearchTool, FileTool, CodeAnalysisTool
+```
 
 ### Adding a New Agent
 
@@ -148,6 +208,30 @@ class MyCustomTool(BaseTool):
         pass
 ```
 
+## Best Practices
+
+1. **Keep Agents Focused**: Each agent should have a single responsibility
+2. **Tool Naming**: Use descriptive, lowercase names with underscores (e.g., `web_search`)
+3. **Context Passing**: Use the context dictionary to share state between tool executions
+4. **Memory Management**: Clear memory when starting new sessions to avoid stale data
+5. **Error Handling**: Implement proper error handling in tool execution
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Import errors | Ensure you're running from the `examples` directory or add `src` to PYTHONPATH |
+| Tool not triggering | Check that your task contains keywords from the tool's `can_handle` method |
+| Memory not persisting | Memory is session-based; use external storage for long-term persistence |
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
 ## License
 
 This project is proprietary and confidential.
@@ -155,3 +239,7 @@ This project is proprietary and confidential.
 ## Contact
 
 For questions or contributions, please open an issue or contact the repository maintainer.
+
+---
+
+**Built with ❤️ for AI Agent Research**
