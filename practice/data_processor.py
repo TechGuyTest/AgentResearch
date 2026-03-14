@@ -12,9 +12,9 @@ Hint: Look for logic errors, edge cases, and inefficient patterns.
 def calculate_average(numbers):
     """
     Calculate the average of a list of numbers.
-    
-    BUG HINT: What happens with empty lists?
     """
+    if not numbers:
+        raise ValueError("Cannot calculate average of empty list")
     total = 0
     for num in numbers:
         total += num
@@ -24,16 +24,13 @@ def calculate_average(numbers):
 def find_max_value(data_list):
     """
     Find the maximum value in a list.
-    
-    BUG HINT: Check the comparison logic carefully.
     """
     if not data_list:
         return None
     
     max_val = data_list[0]
     for i in range(1, len(data_list)):
-        # BUG: Wrong comparison operator
-        if data_list[i] < max_val:
+        if data_list[i] > max_val:
             max_val = data_list[i]
     
     return max_val
@@ -43,20 +40,17 @@ def process_user_scores(scores):
     """
     Process user scores and categorize them.
     Returns dict with 'passed', 'failed', and 'average'.
-    
-    BUG HINT: Check the boundary conditions for pass/fail.
     """
     passed = []
     failed = []
     
     for score in scores:
-        # BUG: Should 60 be passing or failing?
-        if score > 60:
+        # 60 and above is passing
+        if score >= 60:
             passed.append(score)
         else:
             failed.append(score)
     
-    # BUG HINT: What if scores is empty?
     avg = calculate_average(scores)
     
     return {
@@ -69,15 +63,12 @@ def process_user_scores(scores):
 def filter_valid_emails(email_list):
     """
     Filter out invalid email addresses from a list.
-    
-    BUG HINT: Check the validation logic and edge cases.
     """
     valid_emails = []
     
     for email in email_list:
-        # BUG: This check is incomplete and has issues
-        if '@' in email and '.' in email:
-            # BUG HINT: What about empty strings or whitespace?
+        # Check for empty/whitespace and proper format
+        if email and email.strip() and '@' in email and '.' in email:
             valid_emails.append(email)
     
     return valid_emails
@@ -86,33 +77,24 @@ def filter_valid_emails(email_list):
 def merge_and_sort_lists(list1, list2):
     """
     Merge two lists and return sorted result.
-    
-    BUG HINT: Check for efficiency and potential issues.
     """
-    # BUG HINT: This creates a new list each iteration - inefficient!
-    result = []
-    for item in list1:
-        result = result + [item]
-    for item in list2:
-        result = result + [item]
+    # Efficiently merge using list concatenation
+    result = list1 + list2
     
-    # BUG: Sorting modifies in place but we're returning anyway
-    result.sort()
-    return result
+    # Return sorted copy without modifying originals
+    return sorted(result)
 
 
 def count_word_occurrences(text, word):
     """
     Count how many times a word appears in text.
-    
-    BUG HINT: Check case sensitivity and partial matches.
     """
     count = 0
-    words = text.split(' ')
+    words = text.split()
     
     for w in words:
-        # BUG HINT: Is this comparison correct?
-        if word in w:
+        # Case-insensitive exact match (strip punctuation)
+        if w.lower().strip('.,!?;:') == word.lower():
             count += 1
     
     return count
