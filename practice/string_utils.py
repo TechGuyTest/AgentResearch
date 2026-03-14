@@ -29,11 +29,23 @@ def is_palindrome(s):
 
 def capitalize_words(s):
     """Capitalize first letter of each word."""
-    words = s.split()
+    if not s:
+        return s
+    # Preserve whitespace by processing character by character
     result = []
-    for word in words:
-        result.append(word.capitalize())
-    return " ".join(result)
+    capitalize_next = True
+    for char in s:
+        if char.isalpha():
+            if capitalize_next:
+                result.append(char.upper())
+                capitalize_next = False
+            else:
+                result.append(char.lower())
+        else:
+            result.append(char)
+            if char.isspace():
+                capitalize_next = True
+    return "".join(result)
 
 
 def remove_duplicates(s):

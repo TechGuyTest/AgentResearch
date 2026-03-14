@@ -87,6 +87,20 @@ class TestCapitalizeWords(unittest.TestCase):
     def test_capitalize_words_single(self):
         """Test capitalizing single word."""
         self.assertEqual(capitalize_words("hello"), "Hello")
+    
+    def test_capitalize_words_preserves_whitespace(self):
+        """Test that capitalize_words preserves extra whitespace - BUG: Currently loses it."""
+        # BUG: Current implementation uses split() which loses extra whitespace
+        result = capitalize_words("hello   world")
+        # After fix, this should preserve the spacing
+        self.assertEqual(result, "Hello   World")
+    
+    def test_capitalize_words_preserves_leading_trailing_spaces(self):
+        """Test that capitalize_words preserves leading and trailing spaces."""
+        # BUG: Current implementation loses leading/trailing spaces
+        result = capitalize_words("  hello  ")
+        # After fix, this should preserve the spacing
+        self.assertEqual(result, "  Hello  ")
 
 
 class TestRemoveDuplicates(unittest.TestCase):

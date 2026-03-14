@@ -140,6 +140,65 @@ class TestAverage(unittest.TestCase):
         """Test average of empty list - should handle gracefully."""
         with self.assertRaises(ValueError):
             average([])  # Should raise ValueError for empty list
+    
+    def test_average_non_numeric_values(self):
+        """Test average with non-numeric values - should raise ValueError."""
+        # BUG: Currently raises TypeError instead of ValueError
+        # After fix, should raise ValueError with clear message
+        with self.assertRaises(ValueError):
+            average(['a', 'b', 'c'])
+    
+    def test_average_mixed_types(self):
+        """Test average with mixed numeric and non-numeric values."""
+        # BUG: Currently raises TypeError instead of ValueError
+        # After fix, should raise ValueError with clear message
+        with self.assertRaises(ValueError):
+            average([1, 2, 'three', 4])
+
+
+class TestPowerEdgeCases(unittest.TestCase):
+    """Additional tests for power function edge cases."""
+    
+    def test_power_zero_base_negative_exponent(self):
+        """Test power with zero base and negative exponent - should raise ValueError."""
+        # BUG: Currently raises ZeroDivisionError
+        # After fix, should raise ValueError with clear message
+        with self.assertRaises(ValueError):
+            power(0, -2)
+    
+    def test_power_zero_base_zero_exponent(self):
+        """Test power with zero base and zero exponent (0^0 is mathematically undefined)."""
+        # Conventionally returns 1 in many implementations
+        result = power(0, 0)
+        self.assertIn(result, [1, 0])  # Either 1 (convention) or 0 is acceptable
+    
+    def test_power_large_exponent(self):
+        """Test power with large exponent."""
+        result = power(2, 10)
+        self.assertEqual(result, 1024)
+
+
+class TestFactorialEdgeCases(unittest.TestCase):
+    """Additional tests for factorial function edge cases."""
+    
+    def test_factorial_large_number(self):
+        """Test factorial with large number - should handle without RecursionError."""
+        # BUG: Currently causes RecursionError for n >= 1000
+        # This test will fail until the bug is fixed
+        try:
+            result = factorial(100)
+            self.assertGreater(result, 0)
+        except RecursionError:
+            self.fail("factorial(100) should not cause RecursionError")
+    
+    def test_factorial_very_large_number(self):
+        """Test factorial with very large number."""
+        # This should complete without RecursionError after fix
+        try:
+            result = factorial(500)
+            self.assertGreater(result, 0)
+        except RecursionError:
+            self.fail("factorial(500) should not cause RecursionError")
 
 
 if __name__ == '__main__':
