@@ -4,16 +4,19 @@
  * Find and fix each issue!
  */
 
-// Bug 1: Logic error in calculation
+// Fixed Bug 1: Logic error in calculation
 function calculateDiscount(price, discountPercent) {
-  // HINT: What happens when discount is 50%?
-  const discount = price * discountPercent;
+  // Divide discountPercent by 100 to get the actual discount amount
+  const discount = price * (discountPercent / 100);
   return price - discount;
 }
 
-// Bug 2: Missing edge case handling
+// Fixed Bug 2: Missing edge case handling
 function findMaxValue(numbers) {
-  // HINT: What if the array is empty?
+  // Handle empty array edge case
+  if (!numbers || numbers.length === 0) {
+    return null;
+  }
   let max = numbers[0];
   for (let i = 1; i < numbers.length; i++) {
     if (numbers[i] > max) {
@@ -23,9 +26,9 @@ function findMaxValue(numbers) {
   return max;
 }
 
-// Bug 3: Inefficient pattern - can you spot it?
+// Note: Linear search is O(n). For repeated lookups, consider using a Map for O(1) access.
 function searchUser(users, targetId) {
-  // HINT: There's a better way than looping every time
+  // For single lookups, linear search is acceptable
   for (let i = 0; i < users.length; i++) {
     if (users[i].id === targetId) {
       return users[i];
@@ -34,19 +37,19 @@ function searchUser(users, targetId) {
   return null;
 }
 
-// Bug 4: Async/await mistake
+// Fixed Bug 4: Async/await mistake
 async function fetchUserData(userId) {
-  // HINT: What's missing here?
-  const response = fetch(`/api/users/${userId}`);
-  const data = response.json();
+  // Properly await both fetch and json calls
+  const response = await fetch(`/api/users/${userId}`);
+  const data = await response.json();
   return data;
 }
 
-// Bug 5: Variable scope issue
+// Fixed Bug 5: Variable scope issue
 function processItems(items) {
   const results = [];
-  // HINT: Check the loop variable declaration
-  for (i = 0; i < items.length; i++) {
+  // Properly declare loop variable with let
+  for (let i = 0; i < items.length; i++) {
     results.push(items[i] * 2);
   }
   return results;

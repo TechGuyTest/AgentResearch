@@ -1,0 +1,12 @@
+{
+  "name": "agent-research",
+  "version": "1.0.0",
+  "description": "Agent Research practice exercises",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha practice/test_*.js"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0"
+  }
+}
