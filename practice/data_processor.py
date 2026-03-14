@@ -12,15 +12,6 @@ Hint: Look for logic errors, edge cases, and inefficient patterns.
 def calculate_average(numbers):
     """
     Calculate the average of a list of numbers.
-    
-    Args:
-        numbers: A list of numbers.
-        
-    Returns:
-        The average of the numbers.
-        
-    Raises:
-        ValueError: If the list is empty.
     """
     if not numbers:
         raise ValueError("Cannot calculate average of empty list")
@@ -33,12 +24,6 @@ def calculate_average(numbers):
 def find_max_value(data_list):
     """
     Find the maximum value in a list.
-    
-    Args:
-        data_list: A list of comparable values.
-        
-    Returns:
-        The maximum value, or None if the list is empty.
     """
     if not data_list:
         return None
@@ -55,21 +40,12 @@ def process_user_scores(scores):
     """
     Process user scores and categorize them.
     Returns dict with 'passed', 'failed', and 'average'.
-    
-    Args:
-        scores: A list of numeric scores.
-        
-    Returns:
-        A dictionary with 'passed' (scores >= 60), 'failed' (scores < 60),
-        and 'average' (mean of all scores).
-        
-    Raises:
-        ValueError: If the scores list is empty.
     """
     passed = []
     failed = []
     
     for score in scores:
+        # 60 and above is passing
         if score >= 60:
             passed.append(score)
         else:
@@ -87,34 +63,13 @@ def process_user_scores(scores):
 def filter_valid_emails(email_list):
     """
     Filter out invalid email addresses from a list.
-    
-    Args:
-        email_list: A list of email address strings.
-        
-    Returns:
-        A list of valid email addresses.
-        
-    A valid email must:
-        - Not be empty or whitespace-only
-        - Contain exactly one '@' symbol
-        - Have non-whitespace text before and after the '@'
-        - Contain at least one '.' after the '@'
     """
     valid_emails = []
     
     for email in email_list:
-        # Skip empty or whitespace-only strings
-        if not email or not email.strip():
-            continue
-        
-        # Check for '@' and '.' with proper structure
-        if '@' in email and '.' in email:
-            parts = email.split('@')
-            # Must have exactly one '@' with non-whitespace text on both sides
-            if len(parts) == 2 and parts[0].strip() and parts[1].strip():
-                # Must have '.' in the domain part
-                if '.' in parts[1]:
-                    valid_emails.append(email)
+        # Check for empty/whitespace and proper format
+        if email and email.strip() and '@' in email and '.' in email:
+            valid_emails.append(email)
     
     return valid_emails
 
@@ -122,44 +77,24 @@ def filter_valid_emails(email_list):
 def merge_and_sort_lists(list1, list2):
     """
     Merge two lists and return sorted result.
-    
-    BUG HINT: Check for efficiency and potential issues.
     """
-    # BUG HINT: This creates a new list each iteration - inefficient!
-    result = []
-    for item in list1:
-        result = result + [item]
-    for item in list2:
-        result = result + [item]
+    # Efficiently merge using list concatenation
+    result = list1 + list2
     
-    # BUG: Sorting modifies in place but we're returning anyway
-    result.sort()
-    return result
+    # Return sorted copy without modifying originals
+    return sorted(result)
 
 
 def count_word_occurrences(text, word):
     """
     Count how many times a word appears in text.
-    
-    Args:
-        text: The text to search in.
-        word: The word to count (case-insensitive).
-        
-    Returns:
-        The number of exact word occurrences.
-        
-    Note:
-        - Matching is case-insensitive
-        - Only exact word matches are counted (no partial matches)
     """
     count = 0
     words = text.split()
-    word_lower = word.lower()
     
     for w in words:
-        # Remove punctuation and compare exactly (case-insensitive)
-        cleaned_word = ''.join(c for c in w if c.isalnum()).lower()
-        if cleaned_word == word_lower:
+        # Case-insensitive exact match (strip punctuation)
+        if w.lower().strip('.,!?;:') == word.lower():
             count += 1
     
     return count
