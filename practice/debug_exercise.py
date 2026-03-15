@@ -1,157 +1,108 @@
 """
-调试练习文件 - Debug Practice Exercise
-========================================
-这个文件包含多个故意的问题，用于调试训练。
-请找出并修复所有问题。
+Debug Practice Exercise
+========================
+This file contains intentional bugs and code smells for debugging practice.
+Find and fix the issues!
 
-问题类型：逻辑错误、边界情况、低效模式、资源管理等
+Issues to find:
+- Logic errors
+- Unhandled edge cases
+- Inefficient patterns
+- Potential security issues
 """
 
-# ============================================================
-# 问题 1: 可变默认参数陷阱
-# 提示：默认参数在函数定义时只计算一次
-# ============================================================
-def add_item(item, items=[]):
-    """
-    将项目添加到列表中。
-    
-    BUG: 使用可变对象作为默认参数
-    """
-    items.append(item)
-    return items
 
-
-# ============================================================
-# 问题 2: 边界情况未处理
-# 提示：考虑空列表、None 值、负数索引等情况
-# ============================================================
+# Issue 1: Logic Error - Off-by-one in loop
 def calculate_average(numbers):
     """
-    计算数字列表的平均值。
-    
-    BUG: 未处理空列表的情况，会导致除零错误
+    Calculate the average of a list of numbers.
+    BUG: Off-by-one error in loop range
     """
-    total = sum(numbers)
+    if not numbers:
+        return 0
+    
+    total = 0
+    # TODO: Check the loop range - is it iterating correctly?
+    for i in range(1, len(numbers)):  # Hint: Should start from 0?
+        total += numbers[i]
+    
     return total / len(numbers)
 
 
-# ============================================================
-# 问题 3: 逻辑错误 - 错误的比较操作
-# 提示：检查条件判断是否正确
-# ============================================================
-def is_valid_age(age):
+# Issue 2: Unhandled Edge Case - Division by zero
+def safe_divide(a, b):
     """
-    检查年龄是否在有效范围内 (0-150)。
-    
-    BUG: 逻辑运算符使用错误，应该用 and 而不是 or
+    Safely divide two numbers.
+    BUG: Doesn't handle division by zero properly
     """
-    if age < 0 or age > 150:
-        return True  # 返回了相反的结果
-    return False
+    # TODO: What happens when b is 0?
+    result = a / b
+    return result
 
 
-# ============================================================
-# 问题 4: 低效模式 - 不必要的重复计算
-# 提示：在循环中重复计算不变的值
-# ============================================================
-def find_duplicates(data_list):
+# Issue 3: Inefficient Pattern - O(n²) when O(n) is possible
+def find_duplicates(items):
     """
-    找出列表中的重复元素。
-    
-    BUG: 在循环内部重复计算 list length，效率低下
-    应该将 len(data_list) 提取到循环外
+    Find duplicate items in a list.
+    BUG: Uses nested loops instead of a set
     """
     duplicates = []
-    for i in range(len(data_list)):
-        for j in range(len(data_list)):  # 每次都重新计算长度
-            if i != j and data_list[i] == data_list[j]:
-                if data_list[i] not in duplicates:
-                    duplicates.append(data_list[i])
+    # TODO: This is O(n²) - can you make it O(n)?
+    for i in range(len(items)):
+        for j in range(i + 1, len(items)):
+            if items[i] == items[j] and items[i] not in duplicates:
+                duplicates.append(items[i])
+    
     return duplicates
 
 
-# ============================================================
-# 问题 5: 资源未正确关闭
-# 提示：文件操作后需要确保文件被正确关闭
-# ============================================================
-def read_file_content(filepath):
+# Issue 4: Mutable Default Argument - Classic Python gotcha
+def add_item(item, collection=[]):
     """
-    读取文件内容。
+    Add an item to a collection.
+    BUG: Mutable default argument causes unexpected behavior
+    """
+    # TODO: What happens when calling this function multiple times without 
+    # providing the collection argument?
+    collection.append(item)
+    return collection
+
+
+# Issue 5: Unvalidated Input - Security/Robustness issue
+def process_user_data(user_input):
+    """
+    Process user input data.
+    BUG: No input validation or sanitization
+    """
+    # TODO: What if user_input is None, empty, or malicious?
+    data = user_input.strip()
+    processed = eval(data)  # Warning: eval is dangerous!
+    return processed * 2
+
+
+# Helper function for testing
+def run_tests():
+    """Run basic tests on the functions above."""
+    print("Testing calculate_average...")
+    print(f"  [1, 2, 3, 4, 5] average: {calculate_average([1, 2, 3, 4, 5])}")
+    print(f"  Empty list average: {calculate_average([])}")
     
-    BUG: 文件打开后没有确保关闭，如果发生异常文件将保持打开状态
-    应该使用 with 语句或 try-finally
-    """
-    f = open(filepath, 'r')
-    content = f.read()
-    # 如果 read() 抛出异常，文件将不会关闭
-    f.close()
-    return content
-
-
-# ============================================================
-# 问题 6: 字符串比较问题
-# 提示：用户输入可能包含空格或大小写不同
-# ============================================================
-def check_user_role(user_input, expected_role):
-    """
-    检查用户角色是否匹配。
+    print("\nTesting safe_divide...")
+    print(f"  10 / 2 = {safe_divide(10, 2)}")
+    print(f"  10 / 0 = {safe_divide(10, 0)}")
     
-    BUG: 直接比较字符串，未处理大小写和空格
-    """
-    return user_input == expected_role
-
-
-# ============================================================
-# 问题 7: 列表切片边界问题
-# 提示：切片可能超出列表范围
-# ============================================================
-def get_last_n_items(items, n):
-    """
-    获取列表最后 n 个元素。
+    print("\nTesting find_duplicates...")
+    print(f"  [1, 2, 2, 3, 3, 3]: {find_duplicates([1, 2, 2, 3, 3, 3])}")
     
-    BUG: 当 n 大于列表长度时行为可能不符合预期
-    当 n 为负数时没有处理
-    """
-    return items[-n:]
+    print("\nTesting add_item...")
+    print(f"  First call: {add_item('a')}")
+    print(f"  Second call: {add_item('b')}")
+    print(f"  Third call with new list: {add_item('c', [])}")
+    
+    print("\nTesting process_user_data...")
+    print(f"  '5' processed: {process_user_data('5')}")
+    # Try: process_user_data('__import__("os").system("ls")')
 
 
-# ============================================================
-# 主函数 - 用于测试
-# ============================================================
 if __name__ == "__main__":
-    print("=== 调试练习测试 ===\n")
-    
-    # 测试问题 1
-    print("测试 1 - 可变默认参数:")
-    print(add_item(1))
-    print(add_item(2))  # 预期：[2]，实际：[1, 2]
-    print()
-    
-    # 测试问题 2
-    print("测试 2 - 计算平均值:")
-    try:
-        print(calculate_average([]))  # 会抛出 ZeroDivisionError
-    except Exception as e:
-        print(f"错误: {e}")
-    print()
-    
-    # 测试问题 3
-    print("测试 3 - 年龄验证:")
-    print(f"age=25: {is_valid_age(25)}")  # 预期：True，实际：False
-    print(f"age=200: {is_valid_age(200)}")  # 预期：False，实际：True
-    print()
-    
-    # 测试问题 4
-    print("测试 4 - 查找重复项:")
-    print(find_duplicates([1, 2, 2, 3, 3, 3]))
-    print()
-    
-    # 测试问题 6
-    print("测试 6 - 角色检查:")
-    print(check_user_role("  Admin  ", "admin"))  # 预期：True，实际：False
-    print()
-    
-    # 测试问题 7
-    print("测试 7 - 获取最后 N 项:")
-    print(get_last_n_items([1, 2, 3], 5))  # 返回整个列表，可能不符合预期
-    print(get_last_n_items([1, 2, 3], -1))  # 行为奇怪
+    run_tests()
