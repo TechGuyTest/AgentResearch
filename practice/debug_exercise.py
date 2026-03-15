@@ -1,162 +1,147 @@
 """
-调试练习文件 - 包含多个故意的问题用于训练调试技能
+调试练习文件 - Debug Exercise
+============================
+这个文件包含多个故意引入的问题，用于调试和代码审查训练。
+请找出并修复所有问题。
 
-这个文件包含 5 个常见的问题类型：
-1. 逻辑错误
-2. 边界情况未处理
-3. 低效模式
-4. 类型安全问题
-5. 资源管理问题
-
-每个问题都有注释提示，但不直接给出答案。
+问题类型：逻辑错误、边界情况、低效模式、资源管理等
 """
 
+
 # ============================================================
-# 问题 1: 逻辑错误 - 平均值计算
-# TODO: 这个函数在什么情况下会返回错误的结果？
+# 问题 1: 可变默认参数陷阱 (Mutable Default Argument)
 # ============================================================
+# 提示：默认参数在函数定义时只计算一次
+def add_item(item, items=[]):
+    """
+    将项目添加到列表中。
+    
+    问题：使用可变对象作为默认参数
+    """
+    items.append(item)
+    return items
+
+
+# ============================================================
+# 问题 2: 边界情况未处理 (Unprocessed Edge Cases)
+# ============================================================
+# 提示：考虑除零、空列表、负数等情况
 def calculate_average(numbers):
     """
-    计算数字列表的平均值
+    计算数字列表的平均值。
     
-    参数:
-        numbers: 数字列表
-    
-    返回:
-        平均值
+    问题：未处理空列表和除零情况
     """
-    # 提示：考虑除数为 0 的情况
-    total = sum(numbers)
+    total = 0
+    for num in numbers:
+        total += num
     return total / len(numbers)
 
 
 # ============================================================
-# 问题 2: 边界情况未处理 - 查找最大值
-# TODO: 如果传入空列表会发生什么？
-# TODO: 如果列表包含 None 值会怎样？
+# 问题 3: 低效的循环模式 (Inefficient Loop Pattern)
 # ============================================================
-def find_max_value(data_list):
+# 提示：在循环中重复计算不变的值
+def find_duplicates(data_list):
     """
-    查找列表中的最大值
+    找出列表中的重复元素。
     
-    参数:
-        data_list: 包含数字的列表
-    
-    返回:
-        最大值
+    问题：时间复杂度 O(n²)，可以优化到 O(n)
     """
-    # 提示：没有检查空列表的情况
-    max_val = data_list[0]
-    for item in data_list:
-        if item > max_val:
-            max_val = item
-    return max_val
+    duplicates = []
+    for i in range(len(data_list)):
+        for j in range(len(data_list)):
+            if i != j and data_list[i] == data_list[j]:
+                if data_list[i] not in duplicates:
+                    duplicates.append(data_list[i])
+    return duplicates
 
 
 # ============================================================
-# 问题 3: 低效模式 - 列表去重
-# TODO: 这个实现的时间复杂度是多少？能优化吗？
-# TODO: 每次迭代都在做什么重复的工作？
+# 问题 4: 逻辑错误 - 错误的条件判断 (Logic Error)
 # ============================================================
-def remove_duplicates(items):
+# 提示：检查条件判断的逻辑运算符
+def is_valid_age(age):
     """
-    移除列表中的重复项
+    检查年龄是否在有效范围内 (0-150)。
     
-    参数:
-        items: 原始列表
-    
-    返回:
-        去重后的列表
+    问题：使用了错误的逻辑运算符
     """
-    result = []
-    for item in items:
-        # 提示：这个检查在每次迭代时做了什么？
-        if item not in result:
-            result.append(item)
-    return result
+    # 应该是 age >= 0 AND age <= 150
+    if age >= 0 or age <= 150:
+        return True
+    return False
 
 
 # ============================================================
-# 问题 4: 类型安全问题 - 用户数据处理
-# TODO: 如果 user_data 不是字典会怎样？
-# TODO: 如果字典中缺少 'age' 或 'name' 键会怎样？
-# TODO: 如果 age 不是数字类型会怎样？
+# 问题 5: 资源未正确关闭 (Resource Not Properly Closed)
 # ============================================================
-def process_user_data(user_data):
-    """
-    处理用户数据并返回格式化信息
-    
-    参数:
-        user_data: 包含用户信息的字典
-    
-    返回:
-        格式化的用户信息字符串
-    """
-    # 提示：没有类型检查和键存在性检查
-    name = user_data['name']
-    age = user_data['age']
-    
-    # 提示：这里有什么潜在的类型问题？
-    if age > 18:
-        status = "adult"
-    else:
-        status = "minor"
-    
-    return f"User: {name}, Age: {age}, Status: {status}"
-
-
-# ============================================================
-# 问题 5: 资源管理问题 - 文件读取
-# TODO: 这个函数在什么情况下会导致资源泄漏？
-# TODO: 如果文件读取过程中发生异常会怎样？
-# ============================================================
+# 提示：文件操作后需要确保关闭
 def read_file_content(filepath):
     """
-    读取文件内容
+    读取文件内容。
     
-    参数:
-        filepath: 文件路径
-    
-    返回:
-        文件内容字符串
+    问题：文件打开后未正确关闭，异常情况下会泄露资源
     """
-    # 提示：文件是否正确关闭？
-    # 提示：如果读取过程中抛出异常会发生什么？
-    f = open(filepath, 'r', encoding='utf-8')
-    content = f.read()
-    f.close()
+    file = open(filepath, 'r')
+    content = file.read()
+    # 如果 read() 抛出异常，文件将不会关闭
+    file.close()
     return content
+
+
+# ============================================================
+# 问题 6: 字符串比较错误 (String Comparison Error)
+# ============================================================
+# 提示：检查字符串比较的方式
+def check_user_input(user_input):
+    """
+    检查用户输入是否为 'yes'。
+    
+    问题：大小写敏感，且未处理 None 情况
+    """
+    if user_input == 'yes':
+        return True
+    return False
 
 
 # ============================================================
 # 测试代码
 # ============================================================
 if __name__ == "__main__":
-    # 测试用例 1: 平均值计算
-    print("=== 测试 1: 平均值计算 ===")
-    test_numbers = [1, 2, 3, 4, 5]
-    print(f"平均值: {calculate_average(test_numbers)}")
-    # TODO: 尝试传入空列表会发生什么？
+    print("=== 调试练习测试 ===\n")
     
-    # 测试用例 2: 查找最大值
-    print("\n=== 测试 2: 查找最大值 ===")
-    test_data = [3, 7, 2, 9, 1]
-    print(f"最大值: {find_max_value(test_data)}")
-    # TODO: 尝试传入空列表或包含 None 的列表
+    # 测试问题 1
+    print("1. 测试可变默认参数:")
+    print(f"   第一次调用: {add_item(1)}")
+    print(f"   第二次调用: {add_item(2)}")
+    print(f"   预期：[1], [2] | 实际如上\n")
     
-    # 测试用例 3: 去重
-    print("\n=== 测试 3: 列表去重 ===")
-    test_items = [1, 2, 2, 3, 3, 3, 4]
-    print(f"去重后: {remove_duplicates(test_items)}")
-    # TODO: 尝试传入一个很大的列表，观察性能
+    # 测试问题 2
+    print("2. 测试边界情况:")
+    try:
+        result = calculate_average([])
+        print(f"   空列表平均值: {result}")
+    except Exception as e:
+        print(f"   空列表导致错误: {e}\n")
     
-    # 测试用例 4: 用户数据处理
-    print("\n=== 测试 4: 用户数据处理 ===")
-    test_user = {"name": "张三", "age": 25}
-    print(f"处理结果: {process_user_data(test_user)}")
-    # TODO: 尝试传入缺少键的字典或非字典类型
+    # 测试问题 3
+    print("3. 测试重复查找:")
+    test_data = [1, 2, 3, 2, 4, 3, 5]
+    print(f"   输入: {test_data}")
+    print(f"   重复元素: {find_duplicates(test_data)}\n")
     
-    # 测试用例 5: 文件读取
-    print("\n=== 测试 5: 文件读取 ===")
-    # TODO: 尝试读取不存在的文件会发生什么？
-    # print(f"文件内容: {read_file_content('nonexistent.txt')}")
+    # 测试问题 4
+    print("4. 测试年龄验证:")
+    print(f"   age=-5 有效吗？{is_valid_age(-5)} (预期: False)")
+    print(f"   age=200 有效吗？{is_valid_age(200)} (预期: False)\n")
+    
+    # 测试问题 5
+    print("5. 测试文件读取:")
+    print("   (需要实际文件测试)\n")
+    
+    # 测试问题 6
+    print("6. 测试用户输入:")
+    print(f"   'YES' 有效吗？{check_user_input('YES')} (预期: True)")
+    print(f"   'Yes' 有效吗？{check_user_input('Yes')} (预期: True)")
+    print(f"   None 有效吗？{check_user_input(None)} (预期: False)\n")
