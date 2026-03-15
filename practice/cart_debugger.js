@@ -19,10 +19,23 @@
  * @returns {number} Subtotal amount
  */
 function calculateSubtotal(items) {
+    // Validate input - handle empty array
+    if (!items || items.length === 0) {
+        return 0;
+    }
+    
     let subtotal = 0;
     
-    // Problem 1: No validation for empty array or invalid items
-    for (let i = 0; i <= items.length; i++) {  // BUG: <= should be <
+    // Fixed: Changed <= to < to avoid accessing undefined
+    for (let i = 0; i < items.length; i++) {
+        // Validate item structure and quantity
+        if (!items[i] || typeof items[i].price !== 'number' || typeof items[i].quantity !== 'number') {
+            throw new Error(`Invalid item at index ${i}: must have numeric price and quantity`);
+        }
+        // Reject negative quantities
+        if (items[i].quantity < 0) {
+            throw new Error(`Invalid quantity at index ${i}: quantity cannot be negative`);
+        }
         subtotal += items[i].price * items[i].quantity;
     }
     
@@ -36,20 +49,32 @@ function calculateSubtotal(items) {
  * @returns {number} Discounted amount
  */
 function applyDiscount(total, discountCode) {
+    // Validate input types
+    if (typeof total !== 'number' || isNaN(total)) {
+        throw new Error('Invalid total: must be a number');
+    }
+    if (total < 0) {
+        throw new Error('Invalid total: cannot be negative');
+    }
+    
+    // Handle empty or invalid discount code
+    if (!discountCode || typeof discountCode !== 'string') {
+        return total;
+    }
+    
     let discount = 0;
     
-    // Problem 2: Missing validation for discountCode type
     if (discountCode === 'SAVE10') {
         discount = total * 0.1;
     } else if (discountCode === 'SAVE20') {
         discount = total * 0.2;
     } else if (discountCode === 'SAVE50') {
-        // Problem 3: Logic error - should be 0.5, not 0.05
-        discount = total * 0.05;  // BUG: 5% instead of 50%
+        // Fixed: Changed from 0.05 (5%) to 0.5 (50%)
+        discount = total * 0.5;
     }
     
-    // Problem 4: Floating-point precision issue
-    return total - discount;
+    // Fixed: Round to 2 decimal places to avoid floating-point precision issues
+    return Math.round((total - discount) * 100) / 100;
 }
 
 /**
@@ -58,15 +83,30 @@ function applyDiscount(total, discountCode) {
  * @returns {number} Shipping cost
  */
 function calculateShipping(items) {
+    // Handle empty cart
+    if (!items || items.length === 0) {
+        return 0;
+    }
+    
     let totalWeight = 0;
     
-    // Problem 5: Inefficient - recalculating length on each iteration
     for (let i = 0; i < items.length; i++) {
-        // Problem 6: No check for undefined weight
+        // Validate weight exists and is a number
+        if (typeof items[i].weight !== 'number') {
+            throw new Error(`Invalid weight at index ${i}: must be a number`);
+        }
+        // Reject negative weight
+        if (items[i].weight < 0) {
+            throw new Error(`Invalid weight at index ${i}: cannot be negative`);
+        }
         totalWeight += items[i].weight * items[i].quantity;
     }
     
-    // Problem 7: No validation for negative weight
+    // Validate total weight is not negative
+    if (totalWeight < 0) {
+        throw new Error('Total weight cannot be negative');
+    }
+    
     if (totalWeight < 2) {
         return 5.00;
     } else if (totalWeight < 5) {
@@ -85,24 +125,33 @@ function calculateShipping(items) {
 function checkStock(items, inventory) {
     const outOfStock = [];
     
-    // Problem 8: Inefficient nested loop - O(n*m) complexity
+    // Validate inputs
+    if (!items || items.length === 0) {
+        return [];
+    }
+    if (!inventory || !Array.isArray(inventory)) {
+        // If no inventory data, assume all items are out of stock
+        return items.map(item => item.name);
+    }
+    
+    // Optimized: Convert inventory to Map for O(1) lookup instead of O(n*m)
+    const inventoryMap = new Map();
+    for (let i = 0; i < inventory.length; i++) {
+        inventoryMap.set(inventory[i].id, inventory[i]);
+    }
+    
     for (let i = 0; i < items.length; i++) {
-        let found = false;
+        // Fixed: Use strict equality (===) instead of loose equality (==)
+        const inventoryItem = inventoryMap.get(items[i].id);
         
-        for (let j = 0; j < inventory.length; j++) {
-            // Problem 9: Type coercion bug - using == instead of ===
-            if (inventory[j].id == items[i].id) {  // BUG: == can cause unexpected matches
-                if (inventory[j].stock < items[i].quantity) {
-                    outOfStock.push(items[i].name);
-                }
-                found = true;
-                break;
-            }
+        // Fixed: Handle case when item not found in inventory
+        if (!inventoryItem) {
+            outOfStock.push(items[i].name);
+            continue;
         }
         
-        // Problem 10: Missing case when item not found in inventory
-        if (!found) {
-            // Should also add to outOfStock, but doesn't
+        if (inventoryItem.stock < items[i].quantity) {
+            outOfStock.push(items[i].name);
         }
     }
     
@@ -115,9 +164,13 @@ function checkStock(items, inventory) {
  * @returns {string} Formatted currency string
  */
 function formatCurrency(amount) {
-    // Problem 11: No validation for amount type
-    // Problem 12: Floating-point display issue
-    return '$' + amount.toFixed(2);
+    // Validate input type
+    if (typeof amount !== 'number' || isNaN(amount)) {
+        throw new Error('Invalid amount: must be a number');
+    }
+    // Fixed: Round to 2 decimal places first to avoid floating-point display issues
+    const rounded = Math.round(amount * 100) / 100;
+    return '$' + rounded.toFixed(2);
 }
 
 /**
@@ -127,14 +180,18 @@ function formatCurrency(amount) {
  * @returns {Object} Cart summary with totals
  */
 function calculateCartTotal(cart, inventory) {
-    // Problem 13: No validation for cart structure
+    // Validate cart structure
+    if (!cart || !Array.isArray(cart.items)) {
+        throw new Error('Invalid cart: must have items array');
+    }
+    
     const subtotal = calculateSubtotal(cart.items);
     const discounted = applyDiscount(subtotal, cart.discountCode);
     const shipping = calculateShipping(cart.items);
     const outOfStockItems = checkStock(cart.items, inventory);
     
-    // Problem 14: Floating-point addition precision
-    const total = discounted + shipping;
+    // Fixed: Round total to avoid floating-point precision issues
+    const total = Math.round((discounted + shipping) * 100) / 100;
     
     return {
         subtotal: formatCurrency(subtotal),
@@ -223,3 +280,13 @@ console.log('   - Look for type coercion issues (== vs ===)');
 console.log('   - Test with edge cases (empty, negative, zero)');
 console.log('   - Watch out for floating-point arithmetic');
 console.log('   - Validate all inputs before processing');
+
+// Export functions for testing
+module.exports = {
+    calculateSubtotal,
+    applyDiscount,
+    calculateShipping,
+    checkStock,
+    formatCurrency,
+    calculateCartTotal
+};
