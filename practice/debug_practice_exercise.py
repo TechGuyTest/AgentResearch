@@ -9,23 +9,27 @@
 
 
 # ============================================================
-# 问题 1: 可变默认参数陷阱
+# 问题 1: 可变默认参数陷阱 - 已修复
 # 提示：默认参数在函数定义时只计算一次
+# 修复：使用 None 作为默认值，在函数内部创建新列表
 # ============================================================
-def add_item_to_list(item, item_list=[]):
+def add_item_to_list(item, item_list=None):
     """
     将项目添加到列表中并返回列表。
     
     预期行为：每次调用都应该返回只包含新项目的新列表
-    实际行为：？？？
+    实际行为：每次调用都会返回独立的列表
     """
+    if item_list is None:
+        item_list = []
     item_list.append(item)
     return item_list
 
 
 # ============================================================
-# 问题 2: 边界情况未处理 - 除零错误
+# 问题 2: 边界情况未处理 - 除零错误 - 已修复
 # 提示：当 divisor 为 0 时会发生什么？
+# 修复：添加空列表检查，抛出 ValueError
 # ============================================================
 def calculate_average(numbers):
     """
@@ -37,17 +41,21 @@ def calculate_average(numbers):
     返回:
         平均值（浮点数）
     
-    问题：如果列表为空会发生什么？
+    异常:
+        ValueError: 如果列表为空
     """
+    if not numbers:
+        raise ValueError("Cannot calculate average of empty list")
     total = sum(numbers)
     count = len(numbers)
     return total / count
 
 
 # ============================================================
-# 问题 3: 低效的列表查找模式
+# 问题 3: 低效的列表查找模式 - 已修复
 # 提示：在循环中使用 'in' 操作符检查列表成员的复杂度是多少？
 # 整体时间复杂度是多少？有更高的方法吗？
+# 修复：使用集合（set）来优化查找，时间复杂度从 O(n²) 降低到 O(n)
 # ============================================================
 def find_duplicates(numbers):
     """
@@ -59,20 +67,24 @@ def find_duplicates(numbers):
     返回:
         包含所有重复数字的列表（每个重复数字只出现一次）
     
-    问题：这个实现的时间复杂度是多少？如何优化？
+    优化：使用集合来跟踪已见和重复的数字，时间复杂度为 O(n)
     """
-    duplicates = []
-    for i in range(len(numbers)):
-        for j in range(i + 1, len(numbers)):
-            if numbers[i] == numbers[j]:
-                if numbers[i] not in duplicates:
-                    duplicates.append(numbers[i])
-    return duplicates
+    seen = set()
+    duplicates = set()
+    
+    for num in numbers:
+        if num in seen:
+            duplicates.add(num)
+        else:
+            seen.add(num)
+    
+    return list(duplicates)
 
 
 # ============================================================
-# 问题 4: 逻辑错误 - 条件判断错误
+# 问题 4: 逻辑错误 - 条件判断错误 - 已修复
 # 提示：仔细检查条件判断的逻辑
+# 修复：使用 and 而不是 or，包含边界值 0 和 150
 # ============================================================
 def is_valid_age(age):
     """
@@ -84,16 +96,17 @@ def is_valid_age(age):
     返回:
         如果年龄有效返回 True，否则返回 False
     
-    问题：这个函数能正确处理所有边界情况吗？
+    修复：正确处理边界情况，0 和 150 都是有效年龄
     """
-    if age > 0 or age < 150:
+    if 0 <= age <= 150:
         return True
     return False
 
 
 # ============================================================
-# 问题 5: 文件资源未正确关闭
+# 问题 5: 文件资源未正确关闭 - 已修复
 # 提示：如果读取过程中发生异常会发生什么？
+# 修复：使用 with 语句确保文件总是被正确关闭
 # ============================================================
 def read_file_content(filepath):
     """
@@ -105,17 +118,17 @@ def read_file_content(filepath):
     返回:
         包含文件所有行的列表
     
-    问题：文件是否总是被正确关闭？
+    修复：使用 with 语句确保文件总是被正确关闭，即使发生异常
     """
-    file = open(filepath, 'r')
-    lines = file.readlines()
-    file.close()
+    with open(filepath, 'r') as file:
+        lines = file.readlines()
     return lines
 
 
 # ============================================================
-# 问题 6: 字符串比较错误
+# 问题 6: 字符串比较错误 - 已修复
 # 提示：如何正确比较字符串内容？
+# 修复：使用 == 而不是 is 来比较字符串内容
 # ============================================================
 def find_user_by_name(users, target_name):
     """
@@ -128,17 +141,18 @@ def find_user_by_name(users, target_name):
     返回:
         匹配的用户字典，如果未找到则返回 None
     
-    问题：字符串比较是否正确？
+    修复：使用 == 比较字符串内容，而不是 is 比较对象身份
     """
     for user in users:
-        if user['name'] is target_name:
+        if user['name'] == target_name:
             return user
     return None
 
 
 # ============================================================
-# 问题 7: 浮点数比较问题
+# 问题 7: 浮点数比较问题 - 已修复
 # 提示：直接比较浮点数相等有什么问题？
+# 修复：使用阈值比较，而不是直接相等比较
 # ============================================================
 def is_close_to_zero(value):
     """
@@ -150,9 +164,10 @@ def is_close_to_zero(value):
     返回:
         如果值在 -0.0001 到 0.0001 之间返回 True
     
-    问题：这个比较方式有什么问题？
+    修复：使用阈值比较，处理浮点数精度问题
     """
-    return value == 0.0
+    threshold = 0.0001
+    return -threshold <= value <= threshold
 
 
 # ============================================================
