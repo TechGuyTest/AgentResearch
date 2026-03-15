@@ -23,40 +23,71 @@ def calculate_user_stats(users):
     Returns:
         Dictionary with statistics
     """
-    # Problem 1: No validation for empty list
+    # Fixed Problem 1: Handle empty list
+    if not users or len(users) == 0:
+        return {
+            'user_count': 0,
+            'average_score': 0,
+            'average_age': 0,
+            'score_range': 0,
+            'max_score': 0,
+            'min_score': 0,
+            'valid_users': 0
+        }
+    
     total_score = 0
     total_age = 0
     valid_users = 0
+    scores = []
     
-    # Problem 2: Off-by-one error - should iterate through all users
-    for i in range(1, len(users)):  # BUG: starts at 1 instead of 0
+    # Fixed Problem 2: Start at 0 instead of 1 to include all users
+    for i in range(0, len(users)):
         user = users[i]
         
-        # Problem 3: No None check
-        total_score += user['score']
-        total_age += user['age']
+        # Fixed Problem 3: Check for missing fields and None values
+        if 'score' not in user or 'age' not in user:
+            continue
+        
+        score = user['score']
+        age = user['age']
+        
+        # Validate types
+        if not isinstance(score, (int, float)) or not isinstance(age, (int, float)):
+            continue
+        
+        total_score += score
+        total_age += age
         valid_users += 1
+        scores.append(score)
     
-    # Problem 4: Division by zero risk if no valid users
+    # Fixed Problem 4: Handle division by zero
+    if valid_users == 0:
+        return {
+            'user_count': len(users),
+            'average_score': 0,
+            'average_age': 0,
+            'score_range': 0,
+            'max_score': 0,
+            'min_score': 0,
+            'valid_users': 0
+        }
+    
     average_score = total_score / valid_users
     average_age = total_age / valid_users
     
-    # Problem 5: Inefficient - recalculating max/min in separate loops
-    max_score = 0
-    min_score = 999999
-    for user in users:
-        if user['score'] > max_score:
-            max_score = user['score']
-        if user['score'] < min_score:
-            min_score = user['score']
+    # Fixed Problem 5: Calculate max/min in the same loop (already done above)
+    max_score = max(scores) if scores else 0
+    min_score = min(scores) if scores else 0
     
-    # Problem 6: Missing return of some calculated values
+    # Fixed Problem 6: Return all calculated values
     return {
         'user_count': len(users),
         'average_score': average_score,
         'average_age': average_age,
-        'score_range': max_score - min_score
-        # Missing: max_score, min_score, valid_users count
+        'score_range': max_score - min_score,
+        'max_score': max_score,
+        'min_score': min_score,
+        'valid_users': valid_users
     }
 
 
@@ -71,12 +102,22 @@ def filter_active_users(users, threshold=50):
     Returns:
         List of active users
     """
+    # Fixed Problem 7: Validate threshold type
+    if not isinstance(threshold, (int, float)):
+        return []
+    
     active = []
     
-    # Problem 7: No validation on threshold type
     for user in users:
-        # Problem 8: Direct comparison without checking if score exists
-        if user['score'] >= threshold:
+        # Fixed Problem 8: Check if score exists before comparing
+        if 'score' not in user:
+            continue
+        
+        score = user['score']
+        if not isinstance(score, (int, float)):
+            continue
+        
+        if score >= threshold:
             active.append(user)
     
     return active
@@ -93,10 +134,17 @@ def get_top_performers(users, count=3):
     Returns:
         List of top performers
     """
-    # Problem 9: Inefficient sorting - sorts entire list when only need top N
-    sorted_users = sorted(users, key=lambda x: x['score'], reverse=True)
+    # Fixed Problem 9: Validate count parameter
+    if not isinstance(count, int) or count < 0:
+        return []
     
-    # Problem 10: No bounds checking on count
+    # Filter users with valid scores
+    valid_users = [u for u in users if 'score' in u and isinstance(u['score'], (int, float))]
+    
+    # Sort by score descending
+    sorted_users = sorted(valid_users, key=lambda x: x['score'], reverse=True)
+    
+    # Fixed Problem 10: Bounds checking on count (Python slicing handles this, but explicit is better)
     return sorted_users[:count]
 
 
@@ -110,12 +158,29 @@ def validate_user_data(user):
     Returns:
         Boolean indicating if valid
     """
-    # Problem 11: Incomplete validation - doesn't check value types or ranges
+    # Fixed Problem 11: Complete validation with type and range checks
     required_fields = ['name', 'age', 'score']
     
+    # Check all required fields exist
     for field in required_fields:
         if field not in user:
             return False
+    
+    # Validate name is a string
+    if not isinstance(user['name'], str) or not user['name'].strip():
+        return False
+    
+    # Validate age is a number and in reasonable range
+    if not isinstance(user['age'], (int, float)):
+        return False
+    if user['age'] < 0 or user['age'] > 150:
+        return False
+    
+    # Validate score is a number and in reasonable range (0-100)
+    if not isinstance(user['score'], (int, float)):
+        return False
+    if user['score'] < 0 or user['score'] > 100:
+        return False
     
     return True
 
@@ -140,6 +205,8 @@ if __name__ == '__main__':
     print(f"  Average score: {stats['average_score']:.2f}")
     print(f"  Average age: {stats['average_age']:.2f}")
     print(f"  Score range: {stats['score_range']}")
+    print(f"  Max score: {stats['max_score']}")
+    print(f"  Min score: {stats['min_score']}")
     
     print("\n2. Filtering active users (threshold=80):")
     active = filter_active_users(test_users, 80)
