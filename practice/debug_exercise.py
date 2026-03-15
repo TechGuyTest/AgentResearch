@@ -1,158 +1,157 @@
 """
 调试练习文件 - Debug Practice Exercise
-=====================================
-这个文件包含多个故意引入的问题，用于调试和代码审查训练。
+========================================
+这个文件包含多个故意的问题，用于调试训练。
 请找出并修复所有问题。
 
-提示：问题类型包括逻辑错误、边界情况、低效模式、异常处理等。
+问题类型：逻辑错误、边界情况、低效模式、资源管理等
 """
 
+# ============================================================
+# 问题 1: 可变默认参数陷阱
+# 提示：默认参数在函数定义时只计算一次
+# ============================================================
+def add_item(item, items=[]):
+    """
+    将项目添加到列表中。
+    
+    BUG: 使用可变对象作为默认参数
+    """
+    items.append(item)
+    return items
 
+
+# ============================================================
+# 问题 2: 边界情况未处理
+# 提示：考虑空列表、None 值、负数索引等情况
+# ============================================================
 def calculate_average(numbers):
     """
-    计算数字列表的平均值
+    计算数字列表的平均值。
     
-    ⚠️ 问题提示：边界情况处理
+    BUG: 未处理空列表的情况，会导致除零错误
     """
-    total = 0
-    for num in numbers:
-        total += num
+    total = sum(numbers)
     return total / len(numbers)
 
 
-def find_maximum(items):
+# ============================================================
+# 问题 3: 逻辑错误 - 错误的比较操作
+# 提示：检查条件判断是否正确
+# ============================================================
+def is_valid_age(age):
     """
-    找到列表中的最大值
+    检查年龄是否在有效范围内 (0-150)。
     
-    ⚠️ 问题提示：逻辑错误
+    BUG: 逻辑运算符使用错误，应该用 and 而不是 or
     """
-    if not items:
-        return None
-    
-    max_value = 0  # 问题：如果所有值都是负数怎么办？
-    for item in items:
-        if item > max_value:
-            max_value = item
-    return max_value
-
-
-def process_user_data(users):
-    """
-    处理用户数据，提取活跃用户
-    
-    ⚠️ 问题提示：低效模式和潜在错误
-    """
-    active_users = []
-    
-    # 问题：多次遍历列表，效率低下
-    for user in users:
-        if user.get('status') == 'active':
-            active_users.append(user)
-    
-    # 问题：再次遍历，可以合并到上面的循环
-    result = []
-    for user in active_users:
-        if user.get('age', 0) >= 18:
-            result.append(user)
-    
-    # 问题：再次遍历进行数据转换
-    final_result = []
-    for user in result:
-        final_result.append({
-            'name': user.get('name'),
-            'email': user.get('email'),
-            'age': user.get('age')
-        })
-    
-    return final_result
-
-
-def read_file_safely(filename):
-    """
-    安全地读取文件内容
-    
-    ⚠️ 问题提示：异常处理不完整
-    """
-    file = open(filename, 'r')
-    content = file.read()
-    file.close()
-    return content
-
-
-def search_in_list(data_list, target):
-    """
-    在列表中搜索目标值，返回索引
-    
-    ⚠️ 问题提示：边界情况和返回值问题
-    """
-    for i in range(len(data_list)):
-        if data_list[i] == target:
-            return i
-    # 问题：没有找到时返回什么？
-
-
-def merge_dicts(dict1, dict2):
-    """
-    合并两个字典
-    
-    ⚠️ 问题提示：副作用和可变参数
-    """
-    # 问题：直接修改了传入的 dict1，可能产生意外副作用
-    for key, value in dict2.items():
-        dict1[key] = value
-    return dict1
-
-
-def validate_email(email):
-    """
-    验证邮箱格式
-    
-    ⚠️ 问题提示：验证逻辑不完整
-    """
-    # 问题：非常不完整的邮箱验证
-    if '@' in email:
-        return True
+    if age < 0 or age > 150:
+        return True  # 返回了相反的结果
     return False
 
 
-# ============================================
-# 测试代码
-# ============================================
+# ============================================================
+# 问题 4: 低效模式 - 不必要的重复计算
+# 提示：在循环中重复计算不变的值
+# ============================================================
+def find_duplicates(data_list):
+    """
+    找出列表中的重复元素。
+    
+    BUG: 在循环内部重复计算 list length，效率低下
+    应该将 len(data_list) 提取到循环外
+    """
+    duplicates = []
+    for i in range(len(data_list)):
+        for j in range(len(data_list)):  # 每次都重新计算长度
+            if i != j and data_list[i] == data_list[j]:
+                if data_list[i] not in duplicates:
+                    duplicates.append(data_list[i])
+    return duplicates
+
+
+# ============================================================
+# 问题 5: 资源未正确关闭
+# 提示：文件操作后需要确保文件被正确关闭
+# ============================================================
+def read_file_content(filepath):
+    """
+    读取文件内容。
+    
+    BUG: 文件打开后没有确保关闭，如果发生异常文件将保持打开状态
+    应该使用 with 语句或 try-finally
+    """
+    f = open(filepath, 'r')
+    content = f.read()
+    # 如果 read() 抛出异常，文件将不会关闭
+    f.close()
+    return content
+
+
+# ============================================================
+# 问题 6: 字符串比较问题
+# 提示：用户输入可能包含空格或大小写不同
+# ============================================================
+def check_user_role(user_input, expected_role):
+    """
+    检查用户角色是否匹配。
+    
+    BUG: 直接比较字符串，未处理大小写和空格
+    """
+    return user_input == expected_role
+
+
+# ============================================================
+# 问题 7: 列表切片边界问题
+# 提示：切片可能超出列表范围
+# ============================================================
+def get_last_n_items(items, n):
+    """
+    获取列表最后 n 个元素。
+    
+    BUG: 当 n 大于列表长度时行为可能不符合预期
+    当 n 为负数时没有处理
+    """
+    return items[-n:]
+
+
+# ============================================================
+# 主函数 - 用于测试
+# ============================================================
 if __name__ == "__main__":
-    # 测试 calculate_average
-    print("测试 calculate_average:")
-    print(calculate_average([1, 2, 3, 4, 5]))  # 应该输出 3.0
-    # print(calculate_average([]))  # 会发生什么？
+    print("=== 调试练习测试 ===\n")
     
-    # 测试 find_maximum
-    print("\n测试 find_maximum:")
-    print(find_maximum([1, 5, 3, 9, 2]))  # 应该输出 9
-    print(find_maximum([-5, -2, -10, -1]))  # 会输出什么？正确吗？
+    # 测试问题 1
+    print("测试 1 - 可变默认参数:")
+    print(add_item(1))
+    print(add_item(2))  # 预期：[2]，实际：[1, 2]
+    print()
     
-    # 测试 process_user_data
-    print("\n测试 process_user_data:")
-    users = [
-        {'name': 'Alice', 'status': 'active', 'age': 25, 'email': 'alice@example.com'},
-        {'name': 'Bob', 'status': 'inactive', 'age': 30, 'email': 'bob@example.com'},
-        {'name': 'Charlie', 'status': 'active', 'age': 17, 'email': 'charlie@example.com'},
-    ]
-    print(process_user_data(users))
+    # 测试问题 2
+    print("测试 2 - 计算平均值:")
+    try:
+        print(calculate_average([]))  # 会抛出 ZeroDivisionError
+    except Exception as e:
+        print(f"错误: {e}")
+    print()
     
-    # 测试 search_in_list
-    print("\n测试 search_in_list:")
-    print(search_in_list([1, 2, 3, 4, 5], 3))  # 应该输出 2
-    print(search_in_list([1, 2, 3], 10))  # 会输出什么？
+    # 测试问题 3
+    print("测试 3 - 年龄验证:")
+    print(f"age=25: {is_valid_age(25)}")  # 预期：True，实际：False
+    print(f"age=200: {is_valid_age(200)}")  # 预期：False，实际：True
+    print()
     
-    # 测试 merge_dicts
-    print("\n测试 merge_dicts:")
-    d1 = {'a': 1, 'b': 2}
-    d2 = {'c': 3, 'd': 4}
-    print(merge_dicts(d1, d2))
-    print(f"原始 d1 被修改了吗？{d1}")
+    # 测试问题 4
+    print("测试 4 - 查找重复项:")
+    print(find_duplicates([1, 2, 2, 3, 3, 3]))
+    print()
     
-    # 测试 validate_email
-    print("\n测试 validate_email:")
-    print(validate_email("test@example.com"))  # True
-    print(validate_email("invalid"))  # False
-    print(validate_email("@"))  # 会输出什么？合理吗？
-    print(validate_email("user@"))  # 会输出什么？合理吗？
+    # 测试问题 6
+    print("测试 6 - 角色检查:")
+    print(check_user_role("  Admin  ", "admin"))  # 预期：True，实际：False
+    print()
+    
+    # 测试问题 7
+    print("测试 7 - 获取最后 N 项:")
+    print(get_last_n_items([1, 2, 3], 5))  # 返回整个列表，可能不符合预期
+    print(get_last_n_items([1, 2, 3], -1))  # 行为奇怪
